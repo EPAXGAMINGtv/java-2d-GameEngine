@@ -68,13 +68,34 @@ public class BasicRenderer {
         g.dispose();
     }
 
-    public static void clearScreen() {
+    public static void clearScreen(Color color) {
         Graphics g = WindowManager.getGraphics();
         if (g != null) {
-            g.setColor(Color.WHITE);
+            g.setColor(color);
             g.fillRect(0, 0, WindowManager.getCanvas().getWidth(), WindowManager.getCanvas().getHeight());
             g.dispose();
         }
+    }
+
+    public static void drawTextInSize( String text, int x, int y, int width, int height, Font baseFont, Color color) {
+        Graphics2D g = (Graphics2D) WindowManager.getGraphics();
+        float fontSize = baseFont.getSize2D();
+        Font font = baseFont.deriveFont(fontSize);
+        FontMetrics fm = g.getFontMetrics(font);
+        float widthScale = (float) width / fm.stringWidth(text);
+        float heightScale = (float) height / fm.getHeight();
+        float scale = Math.min(widthScale, heightScale);
+        font = baseFont.deriveFont(fontSize * scale);
+        fm = g.getFontMetrics(font);
+        int textWidth = fm.stringWidth(text);
+        int textHeight = fm.getAscent();
+
+        int textX = x + (width - textWidth) / 2;
+        int textY = y + (height + textHeight) / 2 - 4;
+
+        g.setFont(font);
+        g.setColor(color);
+        g.drawString(text, textX, textY);
     }
 
 

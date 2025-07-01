@@ -1,11 +1,13 @@
 package de.epax.renderEngine;
 
+import de.epax.renderEngine.renderer.BasicRenderer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 public class WindowManager {
-
+    public static Color backcolor = new Color(154, 78, 143, 234);
     private static JFrame frame;
     private static Canvas canvas;
     private static BufferStrategy bufferStrategy;
@@ -14,13 +16,14 @@ public class WindowManager {
     private static double deltaTime;
 
     public static void createWindow(String title, int width, int height) {
+
         frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
         frame.setResizable(false);
         frame.setUndecorated(true);
         frame.setLocationRelativeTo(null);
-
+        frame.setBackground(Color.BLACK);
         canvas = new Canvas();
         canvas.setPreferredSize(new Dimension(width, height));
         canvas.setFocusable(false);
@@ -31,7 +34,7 @@ public class WindowManager {
 
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
-
+        BasicRenderer.clearScreen(backcolor);
         lastTime = System.nanoTime();
     }
 
@@ -40,8 +43,11 @@ public class WindowManager {
     }
 
     public static void updateWindow() {
+
         bufferStrategy.show();
         long now = System.nanoTime();
+        Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
+        g.setColor(Color.BLACK);
         deltaTime = (now - lastTime) / 1e9;
         lastTime = now;
     }
