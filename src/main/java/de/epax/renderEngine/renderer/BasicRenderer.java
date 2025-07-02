@@ -6,6 +6,8 @@ import de.epax.texture.Texture;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+
+
 public class BasicRenderer {
 
     public static void drawTexture(Texture texture, int x, int y) {
@@ -122,4 +124,26 @@ public class BasicRenderer {
         WindowManager.getCanvas().setCursor(cursor);
     }
 
+    public static void drawOutblendText(String text, int x, int y, Color color, Font font) {
+        Graphics gRaw = WindowManager.getGraphics();
+        if (gRaw == null || !(gRaw instanceof Graphics2D) || text == null || text.isEmpty() || color == null || font == null)
+            return;
+
+        Graphics2D g = (Graphics2D) gRaw;
+        Composite originalComposite = g.getComposite();
+        Color originalColor = g.getColor();
+        Font originalFont = g.getFont();
+
+        try {
+            // Nutze Alpha aus WindowManager
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, WindowManager.alpha));
+            g.setFont(font);
+            g.setColor(color);
+            g.drawString(text, x, y);
+        } finally {
+            g.setComposite(originalComposite);
+            g.setColor(originalColor);
+            g.setFont(originalFont);
+        }
+    }
 }

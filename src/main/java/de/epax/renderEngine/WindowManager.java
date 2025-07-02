@@ -1,6 +1,5 @@
 package de.epax.renderEngine;
 
-import de.epax.renderEngine.renderer.BasicRenderer;
 import de.epax.texture.Texture;
 
 import javax.swing.*;
@@ -9,12 +8,15 @@ import java.awt.image.BufferStrategy;
 
 public class WindowManager {
     public static Color backcolor = new Color(154, 78, 143, 234);
+
     private static JFrame frame;
     private static Canvas canvas;
     private static BufferStrategy bufferStrategy;
 
     private static long lastTime;
     private static double deltaTime;
+
+    public static float alpha = 1.0f;
 
     public static void createWindow(String title, int width, int height) {
         frame = new JFrame(title);
@@ -46,11 +48,15 @@ public class WindowManager {
             frame.setIconImage(icon);
         }
     }
+
     public static Graphics getGraphics() {
+        if (bufferStrategy == null) return null;
         return bufferStrategy.getDrawGraphics();
     }
 
     public static void updateWindow() {
+        if (bufferStrategy == null) return;
+
         bufferStrategy.show();
         Graphics g = bufferStrategy.getDrawGraphics();
         if (g != null) {
@@ -74,10 +80,21 @@ public class WindowManager {
 
     public static int getFPS() {
         if (deltaTime == 0) return 0;
-        return (int)(1.0 / deltaTime);
+        return (int) (1.0 / deltaTime);
     }
 
     public static Canvas getCanvas() {
         return canvas;
+    }
+
+    // Zeitbasiertes Alpha-Fading (Alpha pro Sekunde)
+    public static void fadeOut(float alphaPerSecond) {
+        alpha -= alphaPerSecond * (float) deltaTime;
+        if (alpha < 0f) alpha = 0f;
+        if (alpha > 1f) alpha = 1f;
+    }
+
+    public static void resetAlpha() {
+        alpha = 1.0f;
     }
 }

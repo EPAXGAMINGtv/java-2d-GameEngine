@@ -1,5 +1,6 @@
 package de.epax.renderEngine.renderer;
 
+import de.epax.Main;
 import de.epax.inputManager.MouseInputHandler;
 import de.epax.sound.MP3Player;
 import de.epax.texture.Texture;
@@ -25,7 +26,10 @@ public class ButtonRenderer {
         if (pressed) {
             if (!wasClicked) {
                 if (clickSoundPlayer != null) {
-                    clickSoundPlayer.play();
+                    if (Main.isSoundOn){
+                        clickSoundPlayer.play();
+                    }
+
                 }
                 wasClickedMap.put(key, true);
                 return true;

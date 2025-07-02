@@ -14,6 +14,7 @@ import de.epax.texture.Texture;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Random;
 
 public class Main {
 
@@ -30,8 +31,12 @@ public class Main {
 
     public static boolean isinSettings = false;
     public static boolean isFPSOn = false;
+    public static  boolean isSoundOn = true;
+    public static int x;
+    public static int y;
 
     public static void main(String[] args) throws IOException {
+    Random random = new Random();
         GameManager gameManager = new GameManager();
         WindowManager.createWindow("Neon EPAX CookieClicker", 1920, 1080);
         KeyboardInputHandler.attachTo(WindowManager.getCanvas());
@@ -58,13 +63,16 @@ public class Main {
         if (clickUpgrade == null) {
             clickUpgrade = new Upgrade("Click Power", 100L, 10, 0);
         }
-
         if (priceUpgrade == null) {
             priceUpgrade = new Upgrade("Price Upgrade", 50, 0, 0);
         }
 
         double addsPerClick = 1 + clickUpgrade.getAddsPerClickIncrease();
         BasicRenderer.setCursorTexture(new Texture("cursor"));
+
+        WindowManager.alpha = 0f;
+        String fadeText = "";
+        boolean showFadeText = false;
 
         while (running) {
             if (!WindowManager.getCanvas().isDisplayable()) {
@@ -82,12 +90,18 @@ public class Main {
 
             boolean isClickedcookie = ButtonRenderer.drawClickableButtonWithoutText(g, cookietex, 830, 400, 300, 300);
             if (isClickedcookie) {
+
                 clicks += addsPerClick;
+                fadeText = "+" + addsPerClick;
+                showFadeText = true;
+                 x = random.nextInt(WindowManager.getCanvas().getWidth());
+                 y = random.nextInt(WindowManager.getCanvas().getHeight());
+                WindowManager.alpha = 1.0f;
             }
 
             boolean isClickedSettings = ButtonRenderer.drawClickableButton(g, settingsTex, 0, 1000, 70, 70, "", font, FPSColor);
             if (isClickedSettings) {
-                if (!isinSettings){
+                if (!isinSettings) {
                     isinSettings = true;
                 } else {
                     ConfigManager.saveConfig();
@@ -138,13 +152,23 @@ public class Main {
             if (isinSettings) {
                 boolean isExitButtonShop = ButtonRenderer.drawClickableButton(g, shopExt, 1200, 87, 50, 65, "", font, Color.WHITE);
                 BasicRenderer.drawTexture(panel, 600, 60);
-                BasicRenderer.drawTextInSize("Settings:",900,130,100,100,font, Color.MAGENTA);
-                BasicRenderer.drawTextInSize("FPS:",750,200,50,50, font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("Settings:", 900, 130, 100, 100, font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("FPS:", 750, 200, 50, 50, font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("Sound:", 750, 230, 50, 50, font, Color.MAGENTA);
                 isFPSOn = ButtonRenderer.drawToggleButton(g, toggleOffTex, toggleOnTex, 800, 210, 70, 30, isFPSOn);
-
+                isSoundOn = ButtonRenderer.drawToggleButton(g,toggleOffTex, toggleOnTex, 800, 240, 70, 30, isSoundOn);
                 if (isExitButtonShop) {
                     isinSettings = false;
                     ConfigManager.saveConfig();
+                }
+            }
+
+            if (showFadeText) {
+
+                BasicRenderer.drawOutblendText(fadeText, x, y, Color.MAGENTA, new Font("Arial", Font.BOLD, 24));
+                WindowManager.fadeOut(1.5f);
+                if (WindowManager.alpha <= 0) {
+                    showFadeText = false;
                 }
             }
 
@@ -153,6 +177,7 @@ public class Main {
 
             WindowManager.updateWindow();
         }
+
         ConfigManager.saveConfig();
         CookieStorage.saveClicks(clicks);
         UpgradeStorage.saveUpgrade("clickUpgrade", clickUpgrade);
