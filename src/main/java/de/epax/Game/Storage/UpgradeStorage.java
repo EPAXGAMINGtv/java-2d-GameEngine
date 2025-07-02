@@ -23,25 +23,29 @@ public class UpgradeStorage {
             }
 
             int level = Integer.parseInt(levelStr);
-            long cost = Long.parseLong(costStr);
-            int addsPerClickIncrease = Integer.parseInt(addsStr);
+            double cost = Double.parseDouble(costStr);
+            double addsPerClickIncrease = Double.parseDouble(addsStr);
 
             return new Upgrade(name, cost, addsPerClickIncrease, level);
 
+        } catch (FileNotFoundException e) {
+            // Datei existiert noch nicht, Upgrade noch nicht gespeichert
+            return null;
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
             return null;
         }
     }
 
+
     public static void saveUpgrade(String key, Upgrade upgrade) {
         Properties props = new Properties();
 
-        // Existierende Properties laden (wenn Datei existiert)
         try (InputStream input = new FileInputStream(FILE_PATH)) {
             props.load(input);
+        } catch (FileNotFoundException e) {
         } catch (IOException e) {
-            // Datei existiert evtl. noch nicht, ignorieren
+            e.printStackTrace();
         }
 
         props.setProperty(key + ".name", upgrade.getName());

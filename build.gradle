@@ -10,12 +10,23 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    implementation "com.badlogicgames.gdx:gdx:1.12.0"
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.0"
-    implementation "com.badlogicgames.gdx:gdx-platform:1.12.0:natives-desktop"
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'javazoom:jlayer:1.0.1'
+}
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'de.epax.Main'
+        )
+    }
+    // Alle Laufzeitabhängigkeiten und Ressourcen mit in die JAR packen
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    // Standard Ressourcen mit in die JAR packen
+    from(sourceSets.main.output)
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 test {

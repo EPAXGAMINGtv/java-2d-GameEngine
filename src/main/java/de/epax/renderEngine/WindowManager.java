@@ -1,6 +1,7 @@
 package de.epax.renderEngine;
 
 import de.epax.renderEngine.renderer.BasicRenderer;
+import de.epax.texture.Texture;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,6 @@ public class WindowManager {
     private static double deltaTime;
 
     public static void createWindow(String title, int width, int height) {
-
         frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(width, height);
@@ -24,6 +24,7 @@ public class WindowManager {
         frame.setUndecorated(true);
         frame.setLocationRelativeTo(null);
         frame.setBackground(Color.BLACK);
+
         canvas = new Canvas();
         canvas.setPreferredSize(new Dimension(width, height));
         canvas.setFocusable(false);
@@ -34,20 +35,29 @@ public class WindowManager {
 
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
-        BasicRenderer.clearScreen(backcolor);
+
         lastTime = System.nanoTime();
     }
 
+    public static void setIconTexture(Texture texture) {
+        if (texture == null || texture.getImage() == null) return;
+        Image icon = texture.getImage();
+        if (frame != null) {
+            frame.setIconImage(icon);
+        }
+    }
     public static Graphics getGraphics() {
         return bufferStrategy.getDrawGraphics();
     }
 
     public static void updateWindow() {
-
         bufferStrategy.show();
+        Graphics g = bufferStrategy.getDrawGraphics();
+        if (g != null) {
+            g.dispose();
+        }
+
         long now = System.nanoTime();
-        Graphics2D g = (Graphics2D) bufferStrategy.getDrawGraphics();
-        g.setColor(Color.BLACK);
         deltaTime = (now - lastTime) / 1e9;
         lastTime = now;
     }
@@ -63,6 +73,7 @@ public class WindowManager {
     }
 
     public static int getFPS() {
+        if (deltaTime == 0) return 0;
         return (int)(1.0 / deltaTime);
     }
 

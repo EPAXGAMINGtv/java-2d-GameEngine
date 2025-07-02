@@ -2,71 +2,63 @@ package de.epax.Game.Upgrade;
 
 public class Upgrade {
     private String name;
-    private long cost;
-    private int addsPerClickIncrease;
+    private double cost;
+    private double baseAddsPerClickIncrease; // Base increase per level
     private int level;
 
-    public Upgrade(String name, long cost, int addsPerClickIncrease, int level) {
+    public Upgrade(String name, double cost, double baseAddsPerClickIncrease, int level) {
         this.name = name;
         this.cost = cost;
-        this.addsPerClickIncrease = addsPerClickIncrease;
+        this.baseAddsPerClickIncrease = baseAddsPerClickIncrease;
         this.level = level;
     }
 
-    public Upgrade(String name, long cost, int addsPerClickIncrease) {
-        this(name, cost, addsPerClickIncrease, 0);
+    public Upgrade(String name, double cost, int baseAddsPerClickIncrease) {
+        this(name, cost, baseAddsPerClickIncrease, 0);
     }
 
     public String getName() {
         return name;
     }
 
-    public long getCost() {
+    public double getCost() {
         return cost;
     }
 
-    public int getAddsPerClickIncrease() {
-        return addsPerClickIncrease * level;
+    public double getAddsPerClickIncrease() {
+        return baseAddsPerClickIncrease * level; // Total increase based on level
     }
 
     public int getLevel() {
         return level;
     }
 
-    public boolean canBuy(long clicks) {
+    public boolean canBuy(double clicks) {
         return clicks >= cost;
     }
 
-
-    public long buy(long clicks) {
-        if (canBuy(clicks)) {
-            clicks -= cost;
-            level++;
-            cost = (long)(cost * 1.5);
-        }
-
+    public double buy(double clicks) {
+        if (!canBuy(clicks)) return clicks;
+        clicks -= cost;
+        level++;
+        cost *= 1.5; // Increase cost exponentially
         return clicks;
     }
 
-
-    public void reduceCost(long amount) {
-        cost -= amount;
-        if (cost < 0) {
-            cost = 1;
-        }
-
+    public void reduceCost(double amount) {
+        cost = Math.max(1, cost - amount);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setCost(long cost) {
+    public void setCost(double cost) {
         this.cost = cost;
     }
 
-    public void setAddsPerClickIncrease(int addsPerClickIncrease) {
-        this.addsPerClickIncrease = addsPerClickIncrease;
+    public void setBaseAddsPerClickIncrease(double baseAddsPerClickIncrease) {
+        this.baseAddsPerClickIncrease = baseAddsPerClickIncrease;
     }
 
     public void setLevel(int level) {

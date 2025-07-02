@@ -1,5 +1,6 @@
 package de.epax;
 
+import de.epax.Game.Storage.ConfigManager;
 import de.epax.Game.Storage.CookieStorage;
 import de.epax.Game.Storage.UpgradeStorage;
 import de.epax.Game.Upgrade.Upgrade;
@@ -27,17 +28,27 @@ public class Main {
         return (long) reduction;
     }
 
+    public static boolean isinSettings = false;
+    public static boolean isFPSOn = false;
+
     public static void main(String[] args) throws IOException {
         GameManager gameManager = new GameManager();
-        WindowManager.createWindow("2D Engine Window", 1920, 1080);
+        WindowManager.createWindow("Neon EPAX CookieClicker", 1920, 1080);
         KeyboardInputHandler.attachTo(WindowManager.getCanvas());
         MouseInputHandler.attachTo(WindowManager.getCanvas());
         MouseInputHandler.setCursorVisible(true);
 
-        Texture cookietex = new Texture("cookie");
+        Texture toggleOffTex = new Texture("cookie");
+        Texture toggleOnTex = new Texture("cookieneon1");
+        Texture shopExt = new Texture("shopext");
+        Texture cookietex = new Texture("cookieneon1");
         Texture exittex = new Texture("exit1");
-
-        long clicks = CookieStorage.loadClicks();
+        Texture settingsTex = new Texture("settings");
+        Texture button1 = new Texture("button1");
+        Texture panel = new Texture("panel");
+        ConfigManager.loadConfig();
+        WindowManager.setIconTexture(cookietex);
+        double clicks = CookieStorage.loadClicks();
         Font font = new Font("Arial", Font.BOLD, 20);
         boolean running = true;
 
@@ -45,19 +56,19 @@ public class Main {
         Upgrade priceUpgrade = UpgradeStorage.loadUpgrade("priceUpgrade");
 
         if (clickUpgrade == null) {
-            clickUpgrade = new Upgrade("Click Power", 1000L, 10, 0);
+            clickUpgrade = new Upgrade("Click Power", 100L, 10, 0);
         }
 
         if (priceUpgrade == null) {
-            priceUpgrade = new Upgrade("Price Upgrade", 500, 0, 0);
+            priceUpgrade = new Upgrade("Price Upgrade", 50, 0, 0);
         }
 
-        int addsPerClick = 1 + clickUpgrade.getAddsPerClickIncrease();
+        double addsPerClick = 1 + clickUpgrade.getAddsPerClickIncrease();
+        BasicRenderer.setCursorTexture(new Texture("cursor"));
 
         while (running) {
             if (!WindowManager.getCanvas().isDisplayable()) {
                 running = false;
-                continue;
             }
 
             Graphics gRaw = WindowManager.getGraphics();
@@ -67,12 +78,22 @@ public class Main {
             g.setColor(Color.BLACK);
             g.fillRect(0, 0, WindowManager.getCanvas().getWidth(), WindowManager.getCanvas().getHeight());
 
-            BasicRenderer.drawText("FPS: " + WindowManager.getFPS(), 10, 20);
+            Color FPSColor = new Color(225, 12, 193, 255);
 
-            boolean isClickedcookie = ButtonRenderer.drawClickableButtonWithoutText(g, cookietex, 860, 440, 200, 200);
+            boolean isClickedcookie = ButtonRenderer.drawClickableButtonWithoutText(g, cookietex, 830, 400, 300, 300);
             if (isClickedcookie) {
                 clicks += addsPerClick;
-                System.out.println("Button wurde gedrückt!");
+            }
+
+            boolean isClickedSettings = ButtonRenderer.drawClickableButton(g, settingsTex, 0, 1000, 70, 70, "", font, FPSColor);
+            if (isClickedSettings) {
+                if (!isinSettings){
+                    isinSettings = true;
+                } else {
+                    ConfigManager.saveConfig();
+                    isinSettings = false;
+                    BasicRenderer.clearScreen(Color.black);
+                }
             }
 
             boolean isClickedExit = ButtonRenderer.drawClickableButtonWithoutText(g, exittex, 1800, 10, 100, 50);
@@ -80,11 +101,13 @@ public class Main {
                 CookieStorage.saveClicks(clicks);
                 UpgradeStorage.saveUpgrade("clickUpgrade", clickUpgrade);
                 UpgradeStorage.saveUpgrade("priceUpgrade", priceUpgrade);
+                ConfigManager.saveConfig();
                 WindowManager.closeWindow();
+                System.exit(0);
             }
 
             boolean upgradeClicked = ButtonRenderer.drawClickableButton(
-                    g, new Texture("button1"), 740, 700, 450, 100,
+                    g, button1, 670, 700, 600, 100,
                     clickUpgrade.getName() + " Lv." + clickUpgrade.getLevel() + " Cost: " + clickUpgrade.getCost(),
                     font, Color.WHITE
             );
@@ -94,28 +117,43 @@ public class Main {
             }
 
             boolean priceUpgradeClicked = ButtonRenderer.drawClickableButton(
-                    g, new Texture("button1"), 740, 820, 450, 100,
+                    g, button1, 670, 820, 600, 100,
                     priceUpgrade.getName() + " Lv." + priceUpgrade.getLevel() + " Cost: " + priceUpgrade.getCost(),
                     font, Color.WHITE
             );
             if (priceUpgradeClicked && priceUpgrade.canBuy(clicks)) {
                 clicks = priceUpgrade.buy(clicks);
-
                 long reduction = getPriceReductionForLevel(priceUpgrade.getLevel());
                 clickUpgrade.reduceCost(reduction);
-                System.out.println("ClickUpgrade Kosten um " + reduction + " reduziert!");
             }
 
             BasicRenderer.drawTextInSize("Cookies: " + clicks, 820, 300, 300, 150, font, Color.MAGENTA);
             BasicRenderer.drawTextInSize("Cookies Per Click: " + addsPerClick, 840, 270, 250, 100, font, Color.MAGENTA);
-            BasicRenderer.drawTextInSize("Rabatt pro Upgrade: -" + getPriceReductionForLevel(priceUpgrade.getLevel()), 840, 240, 250, 100, font, Color.MAGENTA);
+            BasicRenderer.drawTextInSize("Rabatt auf ClickUpgrade: -" + getPriceReductionForLevel(priceUpgrade.getLevel()), 840, 240, 250, 100, font, Color.MAGENTA);
+
+            if (isFPSOn) {
+                BasicRenderer.drawTextInSize("FPS: " + WindowManager.getFPS(), 0, 0, 100, 50, font, FPSColor);
+            }
+
+            if (isinSettings) {
+                boolean isExitButtonShop = ButtonRenderer.drawClickableButton(g, shopExt, 1200, 87, 50, 65, "", font, Color.WHITE);
+                BasicRenderer.drawTexture(panel, 600, 60);
+                BasicRenderer.drawTextInSize("Settings:",900,130,100,100,font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("FPS:",750,200,50,50, font, Color.MAGENTA);
+                isFPSOn = ButtonRenderer.drawToggleButton(g, toggleOffTex, toggleOnTex, 800, 210, 70, 30, isFPSOn);
+
+                if (isExitButtonShop) {
+                    isinSettings = false;
+                    ConfigManager.saveConfig();
+                }
+            }
 
             gameManager.update(WindowManager.delta());
             gameManager.render();
-            g.dispose();
+
             WindowManager.updateWindow();
         }
-
+        ConfigManager.saveConfig();
         CookieStorage.saveClicks(clicks);
         UpgradeStorage.saveUpgrade("clickUpgrade", clickUpgrade);
         UpgradeStorage.saveUpgrade("priceUpgrade", priceUpgrade);
