@@ -10,6 +10,7 @@ import de.epax.inputManager.MouseInputHandler;
 import de.epax.renderEngine.renderer.BasicRenderer;
 import de.epax.renderEngine.renderer.ButtonRenderer;
 import de.epax.renderEngine.WindowManager;
+import de.epax.sound.MP3Player;
 import de.epax.texture.Texture;
 
 import java.awt.*;
@@ -30,15 +31,17 @@ public class Main {
     }
 
     public static boolean isinSettings = false;
-    public static boolean isFPSOn = false;
-    public static  boolean isSoundOn = true;
+    public static boolean isFPSOn = true;
+    public static boolean isSoundOn = true;
+    public static boolean isMusikOn = true;
     public static int x;
     public static int y;
 
     public static void main(String[] args) throws IOException {
-    Random random = new Random();
+        Random random = new Random();
+
         GameManager gameManager = new GameManager();
-        WindowManager.createWindow("Neon EPAX CookieClicker", 1920, 1080);
+        WindowManager.createWindow("NeonEPAXClicker", 1920, 1080);
         KeyboardInputHandler.attachTo(WindowManager.getCanvas());
         MouseInputHandler.attachTo(WindowManager.getCanvas());
         MouseInputHandler.setCursorVisible(true);
@@ -69,10 +72,15 @@ public class Main {
 
         double addsPerClick = 1 + clickUpgrade.getAddsPerClickIncrease();
         BasicRenderer.setCursorTexture(new Texture("cursor"));
-
+        MP3Player backmusik = new MP3Player("gameback.mp3");
+        if (isMusikOn) {
+            backmusik.playLoop(0.1f);
+        }
         WindowManager.alpha = 0f;
         String fadeText = "";
         boolean showFadeText = false;
+
+        boolean oldIsMusikOn = isMusikOn;
 
         while (running) {
             if (!WindowManager.getCanvas().isDisplayable()) {
@@ -90,12 +98,11 @@ public class Main {
 
             boolean isClickedcookie = ButtonRenderer.drawClickableButtonWithoutText(g, cookietex, 830, 400, 300, 300);
             if (isClickedcookie) {
-
                 clicks += addsPerClick;
                 fadeText = "+" + addsPerClick;
                 showFadeText = true;
-                 x = random.nextInt(WindowManager.getCanvas().getWidth());
-                 y = random.nextInt(WindowManager.getCanvas().getHeight());
+                x = random.nextInt(WindowManager.getCanvas().getWidth());
+                y = random.nextInt(WindowManager.getCanvas().getHeight());
                 WindowManager.alpha = 1.0f;
             }
 
@@ -154,9 +161,21 @@ public class Main {
                 BasicRenderer.drawTexture(panel, 600, 60);
                 BasicRenderer.drawTextInSize("Settings:", 900, 130, 100, 100, font, Color.MAGENTA);
                 BasicRenderer.drawTextInSize("FPS:", 750, 200, 50, 50, font, Color.MAGENTA);
-                BasicRenderer.drawTextInSize("Sound:", 750, 230, 50, 50, font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("Sound:", 750, 250, 50, 50, font, Color.MAGENTA);
+                BasicRenderer.drawTextInSize("Musik:", 750, 295, 50, 50, font, Color.MAGENTA);
                 isFPSOn = ButtonRenderer.drawToggleButton(g, toggleOffTex, toggleOnTex, 800, 210, 70, 30, isFPSOn);
-                isSoundOn = ButtonRenderer.drawToggleButton(g,toggleOffTex, toggleOnTex, 800, 240, 70, 30, isSoundOn);
+                isSoundOn = ButtonRenderer.drawToggleButton(g, toggleOffTex, toggleOnTex, 800, 260, 70, 30, isSoundOn);
+
+                boolean newIsMusikOn = ButtonRenderer.drawToggleButton(g, toggleOffTex, toggleOnTex, 800, 300, 70, 30, isMusikOn);
+                if (newIsMusikOn != isMusikOn) {
+                    isMusikOn = newIsMusikOn;
+                    if (isMusikOn) {
+                        backmusik.playLoop(0.1f);
+                    } else {
+                        backmusik.stopLoop();
+                    }
+                }
+
                 if (isExitButtonShop) {
                     isinSettings = false;
                     ConfigManager.saveConfig();
@@ -164,7 +183,6 @@ public class Main {
             }
 
             if (showFadeText) {
-
                 BasicRenderer.drawOutblendText(fadeText, x, y, Color.MAGENTA, new Font("Arial", Font.BOLD, 24));
                 WindowManager.fadeOut(1.5f);
                 if (WindowManager.alpha <= 0) {

@@ -27,7 +27,7 @@ public class ButtonRenderer {
             if (!wasClicked) {
                 if (clickSoundPlayer != null) {
                     if (Main.isSoundOn){
-                        clickSoundPlayer.play();
+                        clickSoundPlayer.play(10);
                     }
 
                 }
