@@ -26,7 +26,7 @@ public class Upgrade {
     }
 
     public double getAddsPerClickIncrease() {
-        return baseAddsPerClickIncrease * level; // Total increase based on level
+        return baseAddsPerClickIncrease * level;
     }
 
     public int getLevel() {

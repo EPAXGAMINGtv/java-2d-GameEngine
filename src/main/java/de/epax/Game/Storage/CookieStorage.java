@@ -18,7 +18,7 @@ public class CookieStorage {
         try (BufferedReader reader = new BufferedReader(new FileReader(SAVE_FILE))) {
             String line = reader.readLine();
             if (line != null) {
-                return Double.parseDouble(line);  // <-- hier double parsen, nicht int
+                return Double.parseDouble(line);
             }
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();

@@ -29,7 +29,7 @@ public class UpgradeStorage {
             return new Upgrade(name, cost, addsPerClickIncrease, level);
 
         } catch (FileNotFoundException e) {
-            // Datei existiert noch nicht, Upgrade noch nicht gespeichert
+            e.printStackTrace();
             return null;
         } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
@@ -52,7 +52,6 @@ public class UpgradeStorage {
         props.setProperty(key + ".level", String.valueOf(upgrade.getLevel()));
         props.setProperty(key + ".cost", String.valueOf(upgrade.getCost()));
         props.setProperty(key + ".addsPerClickIncrease", String.valueOf(upgrade.getAddsPerClickIncrease()));
-
         try (OutputStream output = new FileOutputStream(FILE_PATH)) {
             props.store(output, "Upgrade Data");
         } catch (IOException e) {
