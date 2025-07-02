@@ -46,8 +46,8 @@ public class Main {
         MouseInputHandler.attachTo(WindowManager.getCanvas());
         MouseInputHandler.setCursorVisible(true);
 
-        Texture toggleOffTex = new Texture("cookie");
-        Texture toggleOnTex = new Texture("cookieneon1");
+        Texture toggleOffTex = new Texture("switchoff");
+        Texture toggleOnTex = new Texture("switchon");
         Texture shopExt = new Texture("shopext");
         Texture cookietex = new Texture("cookieneon1");
         Texture exittex = new Texture("exit1");
