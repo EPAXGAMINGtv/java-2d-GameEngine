@@ -57,6 +57,7 @@ public class Main {
         ConfigManager.loadConfig();
         WindowManager.setIconTexture(cookietex);
         double clicks = CookieStorage.loadClicks();
+        clicks = Math.floor(clicks); // Sicherstellen, dass clicks ganzzahlig startet
         Font font = new Font("Arial", Font.BOLD, 20);
         boolean running = true;
 
@@ -99,6 +100,7 @@ public class Main {
             boolean isClickedcookie = ButtonRenderer.drawClickableButtonWithoutText(g, cookietex, 830, 400, 300, 300);
             if (isClickedcookie) {
                 clicks += addsPerClick;
+                clicks = Math.floor(clicks);
                 fadeText = "+" + addsPerClick;
                 showFadeText = true;
                 x = random.nextInt(WindowManager.getCanvas().getWidth());
@@ -134,6 +136,7 @@ public class Main {
             );
             if (upgradeClicked && clickUpgrade.canBuy(clicks)) {
                 clicks = clickUpgrade.buy(clicks);
+                clicks = Math.floor(clicks);
                 addsPerClick = 1 + clickUpgrade.getAddsPerClickIncrease();
             }
 
@@ -144,6 +147,7 @@ public class Main {
             );
             if (priceUpgradeClicked && priceUpgrade.canBuy(clicks)) {
                 clicks = priceUpgrade.buy(clicks);
+                clicks = Math.floor(clicks);
                 long reduction = getPriceReductionForLevel(priceUpgrade.getLevel());
                 clickUpgrade.reduceCost(reduction);
             }
